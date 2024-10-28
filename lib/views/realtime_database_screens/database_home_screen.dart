@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
@@ -19,6 +21,7 @@ class _DatabaseHomeScreenState extends State<DatabaseHomeScreen> {
   final ref = FirebaseDatabase.instance.ref('Data');
 
   final _auth = FirebaseAuth.instance;
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,8 +32,10 @@ class _DatabaseHomeScreenState extends State<DatabaseHomeScreen> {
                 onPressed: () {
                   _auth.signOut().then((value) {
                     Utils.customToast("Log Out");
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const LoginScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginScreen()));
                   }).onError((errore, stackTrace) {
                     Utils.customToast(errore.toString());
                   });
@@ -38,34 +43,38 @@ class _DatabaseHomeScreenState extends State<DatabaseHomeScreen> {
                 icon: const Icon(Icons.logout))
           ],
         ),
-        body: FirebaseAnimatedList(
-            query: ref,
-            itemBuilder: (context, snapshot, animated, index) {
-              return Column(
-                children: [
-                  Container(
-                    height: Get.height * 0.4,
-                    width: Get.width,
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                    child: Image.network(
-                      snapshot.child('profile').value.toString(),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  kRepeatedContainer(snapshot,
-                      "Name : " + snapshot.child('name').value.toString()),
-                  kRepeatedContainer(
-                      snapshot,
-                      "Mobile Number : " +
-                          snapshot.child('mobile').value.toString()),
-                  kRepeatedContainer(
-                      snapshot,
-                      "Address : " +
-                          snapshot.child('address').value.toString()),
-                ],
-              );
-            }));
+        body: isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : FirebaseAnimatedList(
+                query: ref,
+                itemBuilder: (context, snapshot, animated, index) {
+                  return Column(
+                    children: [
+                      Container(
+                        height: Get.height * 0.4,
+                        width: Get.width,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Image.network(
+                          snapshot.child('profile').value.toString(),
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                      kRepeatedContainer(snapshot,
+                          "Name : " + snapshot.child('name').value.toString()),
+                      kRepeatedContainer(
+                          snapshot,
+                          "Mobile Number : " +
+                              snapshot.child('mobile').value.toString()),
+                      kRepeatedContainer(
+                          snapshot,
+                          "Address : " +
+                              snapshot.child('address').value.toString()),
+                    ],
+                  );
+                }));
   }
 
   Container kRepeatedContainer(DataSnapshot snapshot, String title) {

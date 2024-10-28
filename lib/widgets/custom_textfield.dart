@@ -6,11 +6,11 @@ class CustomTextField extends StatelessWidget {
   final maxLines;
   final maxLength;
   final keyboardType;
-  final bool? obsecureText;
+  bool obsecureText;
   final Widget? prefix;
   final Widget? suffix;
 
-  const CustomTextField(
+  CustomTextField(
       {super.key,
       this.controller,
       this.hintText,
@@ -19,7 +19,7 @@ class CustomTextField extends StatelessWidget {
       this.keyboardType,
       this.suffix,
       this.prefix,
-      this.obsecureText});
+      this.obsecureText = false});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +31,14 @@ class CustomTextField extends StatelessWidget {
       },
       maxLength: maxLength,
       keyboardType: keyboardType,
-      obscureText: obsecureText ?? false,
+      obscureText: obsecureText,
       maxLines: maxLines,
       controller: controller,
-      decoration:
-          InputDecoration(border: OutlineInputBorder(), hintText: hintText,suffixIcon: suffix,prefixIcon: prefix),
+      decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          hintText: hintText,
+          suffixIcon: suffix,
+          prefixIcon: prefix),
     );
   }
 }

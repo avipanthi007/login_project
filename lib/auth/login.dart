@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,7 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final _auth = FirebaseAuth.instance;
   final formKey = GlobalKey<FormState>();
-  final obsecure = true.obs;
+  bool obsecure = true;
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,43 +44,53 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 25,
                 ),
-                Obx(
-                  () => CustomTextField(
-                    controller: passwordController,
-                    hintText: "Enter Password",
-                    //obsecureText: obsecure.isTrue,
-                    suffix: IconButton(
-                        onPressed: () {
-                          obsecure.toggle();
-                        },
-                        icon: Icon(obsecure.isTrue
-                            ? Icons.visibility_off
-                            : Icons.visibility)),
-                  ),
+                CustomTextField(
+                  controller: passwordController,
+                  hintText: "Enter Password",
+                  // obsecureText: obsecure,
+                  suffix: IconButton(
+                      onPressed: () {
+                        obsecure = !obsecure;
+                        setState(() {});
+                      },
+                      icon: obsecure
+                          ? Icon(Icons.visibility_off)
+                          : Icon(Icons.visibility)),
                 ),
                 SizedBox(
                   height: 30,
                 ),
-                CustomButton(
-                  label: "Log In",
-                  onTap: () {
-                    if (formKey.currentState!.validate()) {
-                      _auth
-                          .signInWithEmailAndPassword(
-                              email: emailController.text,
-                              password: passwordController.text)
-                          .then((value) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DatabaseHomeScreen()));
-                        Utils.customToast("Login Success");
-                      }).onError((errore, stackTrace) {
-                        Utils.customToast(errore.toString());
-                      });
-                    }
-                  },
-                ),
+                isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : CustomButton(
+                        label: "Log In",
+                        onTap: () {
+                          if (formKey.currentState!.validate()) {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            _auth
+                                .signInWithEmailAndPassword(
+                                    email: emailController.text,
+                                    password: passwordController.text)
+                                .then((value) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DatabaseHomeScreen()));
+                              setState(() {
+                                isLoading = false;
+                              });
+                              Utils.customToast("Login Success");
+                            }).onError((errore, stackTrace) {
+                              Utils.customToast(errore.toString());
+                            });
+                          }
+                        },
+                      ),
                 Row(
                   children: [
                     Spacer(),
